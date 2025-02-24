@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemeRank - Bewerte Memes</title>
+    <title>DankRank - Rate Memes</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        .meme-container { width: 300px; margin: 20px auto; border: 1px solid #ddd; padding: 10px; }
-        .meme-container img { max-width: 100%; height: auto; }
-        .tier-buttons button { margin: 5px; padding: 10px; }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f9f9f9; }
+        .meme-container { width: 350px; margin: 20px auto; border: 1px solid #ddd; padding: 15px; background: white; border-radius: 10px; }
+        .meme-container img { max-width: 100%; height: auto; border-radius: 5px; }
+        .tier-buttons button { margin: 5px; padding: 10px 15px; border: none; cursor: pointer; font-size: 16px; border-radius: 5px; }
         .ranking-container { margin-top: 20px; }
+        button:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
-    <h1>MemeRank - Bewerte Memes</h1>
+    <h1>DankRank - Rate Memes</h1>
     <div class="meme-container">
         <img id="memeImage" src="" alt="Meme">
         <div class="tier-buttons">
@@ -24,8 +25,8 @@
             <button onclick="vote('D')">D</button>
             <button onclick="vote('F')">F</button>
         </div>
-        <p id="voteResult">Noch keine Bewertung</p>
-        <button onclick="nextMeme()">Nächstes Meme</button>
+        <p id="voteResult">No rating yet</p>
+        <button onclick="nextMeme()">Next Meme</button>
     </div>
     <h2>Top Memes</h2>
     <div class="ranking-container" id="ranking"></div>
@@ -40,7 +41,7 @@
         
         function loadMeme() {
             document.getElementById("memeImage").src = memes[currentMemeIndex];
-            document.getElementById("voteResult").innerText = "Noch keine Bewertung";
+            document.getElementById("voteResult").innerText = "No rating yet";
         }
         
         function vote(tier) {
@@ -50,8 +51,8 @@
             }
             memeVotes[memes[currentMemeIndex]].push(tier);
             localStorage.setItem("memeVotes", JSON.stringify(memeVotes));
-            document.getElementById("voteResult").innerText = "Deine Bewertung: " + tier;
-            alert("Danke für dein Voting!");
+            document.getElementById("voteResult").innerText = "Your rating: " + tier;
+            alert("Thanks for your vote!");
             updateRanking();
         }
         
@@ -62,7 +63,7 @@
         
         function calculateAverage(votes) {
             const tierValues = { 'S': 6, 'A': 5, 'B': 4, 'C': 3, 'D': 2, 'F': 1 };
-            if (!votes || votes.length === 0) return "Keine Bewertung";
+            if (!votes || votes.length === 0) return "No rating";
             let total = votes.reduce((sum, vote) => sum + tierValues[vote], 0);
             return (total / votes.length).toFixed(2);
         }
@@ -73,8 +74,8 @@
                 return { meme: meme, average: calculateAverage(memeVotes[meme]) };
             }).sort((a, b) => b.average - a.average);
             
-            let rankingHTML = ranking.map(entry => `<p><img src="${entry.meme}" width="100"> - Durchschnitt: ${entry.average}</p>`).join(" ");
-            document.getElementById("ranking").innerHTML = rankingHTML || "Noch keine Bewertungen";
+            let rankingHTML = ranking.map(entry => `<p><img src="${entry.meme}" width="100"> - Avg. Rating: ${entry.average}</p>`).join(" ");
+            document.getElementById("ranking").innerHTML = rankingHTML || "No ratings yet";
         }
         
         window.onload = function() {
