@@ -14,7 +14,7 @@
 <body>
     <h1>MemeRank - Bewerte Memes</h1>
     <div class="meme-container">
-        <img id="memeImage" src="https://i.imgflip.com/4/30b1gx.jpg" alt="Sample Meme">
+        <img id="memeImage" src="" alt="Meme">
         <div class="tier-buttons">
             <button onclick="vote('S')">S</button>
             <button onclick="vote('A')">A</button>
@@ -24,13 +24,36 @@
             <button onclick="vote('F')">F</button>
         </div>
         <p id="voteResult">Noch keine Bewertung</p>
+        <button onclick="nextMeme()">Nächstes Meme</button>
     </div>
 
     <script>
-        function vote(tier) {
-            document.getElementById("voteResult").innerText = "Deine Bewertung: " + tier;
-            alert("Danke für dein Voting! Bald gibt es ein richtiges Ranking.");
+        const memes = [
+            "https://i.imgflip.com/4/30b1gx.jpg",
+            "https://i.imgflip.com/4/26am.jpg",
+            "https://i.imgflip.com/4/1bij.jpg"
+        ];
+        let currentMemeIndex = 0;
+        
+        function loadMeme() {
+            document.getElementById("memeImage").src = memes[currentMemeIndex];
+            document.getElementById("voteResult").innerText = "Noch keine Bewertung";
         }
+        
+        function vote(tier) {
+            let memeVotes = JSON.parse(localStorage.getItem("memeVotes")) || {};
+            memeVotes[memes[currentMemeIndex]] = tier;
+            localStorage.setItem("memeVotes", JSON.stringify(memeVotes));
+            document.getElementById("voteResult").innerText = "Deine Bewertung: " + tier;
+            alert("Danke für dein Voting!");
+        }
+        
+        function nextMeme() {
+            currentMemeIndex = (currentMemeIndex + 1) % memes.length;
+            loadMeme();
+        }
+        
+        window.onload = loadMeme;
     </script>
 </body>
 </html>
