@@ -9,6 +9,7 @@
         .meme-container { width: 300px; margin: 20px auto; border: 1px solid #ddd; padding: 10px; }
         .meme-container img { max-width: 100%; height: auto; }
         .tier-buttons button { margin: 5px; padding: 10px; }
+        .ranking-container { margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -26,6 +27,8 @@
         <p id="voteResult">Noch keine Bewertung</p>
         <button onclick="nextMeme()">Nächstes Meme</button>
     </div>
+    <h2>Top Memes</h2>
+    <div class="ranking-container" id="ranking"></div>
 
     <script>
         const memes = [
@@ -33,7 +36,7 @@
             "https://i.imgflip.com/4/26am.jpg",
             "https://i.imgflip.com/4/1bij.jpg"
         ];
-        let currentMemeIndex = 0;
+        let currentMemeIndex = Math.floor(Math.random() * memes.length);
         
         function loadMeme() {
             document.getElementById("memeImage").src = memes[currentMemeIndex];
@@ -42,18 +45,42 @@
         
         function vote(tier) {
             let memeVotes = JSON.parse(localStorage.getItem("memeVotes")) || {};
-            memeVotes[memes[currentMemeIndex]] = tier;
+            if (!memeVotes[memes[currentMemeIndex]]) {
+                memeVotes[memes[currentMemeIndex]] = [];
+            }
+            memeVotes[memes[currentMemeIndex]].push(tier);
             localStorage.setItem("memeVotes", JSON.stringify(memeVotes));
             document.getElementById("voteResult").innerText = "Deine Bewertung: " + tier;
             alert("Danke für dein Voting!");
+            updateRanking();
         }
         
         function nextMeme() {
-            currentMemeIndex = (currentMemeIndex + 1) % memes.length;
+            currentMemeIndex = Math.floor(Math.random() * memes.length);
             loadMeme();
         }
         
-        window.onload = loadMeme;
+        function calculateAverage(votes) {
+            const tierValues = { 'S': 6, 'A': 5, 'B': 4, 'C': 3, 'D': 2, 'F': 1 };
+            if (!votes || votes.length === 0) return "Keine Bewertung";
+            let total = votes.reduce((sum, vote) => sum + tierValues[vote], 0);
+            return (total / votes.length).toFixed(2);
+        }
+        
+        function updateRanking() {
+            let memeVotes = JSON.parse(localStorage.getItem("memeVotes")) || {};
+            let ranking = Object.keys(memeVotes).map(meme => {
+                return { meme: meme, average: calculateAverage(memeVotes[meme]) };
+            }).sort((a, b) => b.average - a.average);
+            
+            let rankingHTML = ranking.map(entry => `<p><img src="${entry.meme}" width="100"> - Durchschnitt: ${entry.average}</p>`).join(" ");
+            document.getElementById("ranking").innerHTML = rankingHTML || "Noch keine Bewertungen";
+        }
+        
+        window.onload = function() {
+            loadMeme();
+            updateRanking();
+        };
     </script>
 </body>
 </html>
