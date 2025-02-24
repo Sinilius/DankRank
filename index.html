@@ -1,28 +1,4 @@
 <!DOCTYPE html>
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-storage.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
-  
-    const firebaseConfig = {
-  apiKey: "AIzaSyA2QfaUSg7ErMfi4IOg4sc-7sB5gPQYJiI",
-  authDomain: "dankrank-416f0.firebaseapp.com",
-  projectId: "dankrank-416f0",
-  storageBucket: "dankrank-416f0.firebasestorage.app",
-  messagingSenderId: "340287403202",
-  appId: "1:340287403202:web:24440e6cc8d06279eff75b",
-  measurementId: "G-T8WP7EQLZR"
-};
-  
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);  // Firestore
-    const storage = getStorage(app);  // Firebase Storage
-    const auth = getAuth(app);  // Firebase Authentication
-    const analytics = getAnalytics(app);
-  </script>
-  
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -56,42 +32,63 @@
     <div class="ranking-container" id="ranking"></div>
 
     <script type="module">
-        // Dies ist das Skript für das Hochladen von Memes
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-storage.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.1/firebase-analytics.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2QfaUSg7ErMfi4IOg4sc-7sB5gPQYJiI",
+            authDomain: "dankrank-416f0.firebaseapp.com",
+            projectId: "dankrank-416f0",
+            storageBucket: "dankrank-416f0.firebasestorage.app",
+            messagingSenderId: "340287403202",
+            appId: "1:340287403202:web:24440e6cc8d06279eff75b",
+            measurementId: "G-T8WP7EQLZR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);  // Firestore
+        const storage = getStorage(app);  // Firebase Storage
+        const auth = getAuth(app);  // Firebase Authentication
+        const analytics = getAnalytics(app);
+
+        // Skript für das Hochladen von Memes
         document.getElementById("uploadForm").addEventListener("submit", function(e) {
-          e.preventDefault();
-      
-          const memeFile = document.getElementById("memeFile").files[0];
-          const memeTitle = document.getElementById("memeTitle").value;
-          const memeDescription = document.getElementById("memeDescription").value;
-      
-          if (memeFile && memeTitle) {
-              const storageRef = ref(storage, 'memes/' + memeFile.name);  // Speicherpfad für das Bild
-              uploadBytes(storageRef, memeFile).then((snapshot) => {
-                  // Nach erfolgreichem Hochladen die Bild-URL abrufen
-                  getDownloadURL(snapshot.ref).then((downloadURL) => {
-                      // Meme-Daten in Firestore speichern
-                      db.collection("memes").add({
-                          title: memeTitle,
-                          description: memeDescription,
-                          imageURL: downloadURL,
-                          createdAt: new Date(),
-                          votes: []  // Hier kannst du die Bewertungen später hinzufügen
-                      })
-                      .then(() => {
-                          alert("Meme erfolgreich hochgeladen!");
-                      })
-                      .catch((error) => {
-                          console.error("Fehler beim Speichern:", error);
-                      });
-                  });
-              }).catch((error) => {
-                  console.error("Fehler beim Hochladen:", error);
-              });
-          }
+            e.preventDefault();
+            const memeFile = document.getElementById("memeFile").files[0];
+            const memeTitle = document.getElementById("memeTitle").value;
+            const memeDescription = document.getElementById("memeDescription").value;
+
+            if (memeFile && memeTitle) {
+                const storageRef = ref(storage, 'memes/' + memeFile.name);  // Speicherpfad für das Bild
+                uploadBytes(storageRef, memeFile).then((snapshot) => {
+                    // Nach erfolgreichem Hochladen die Bild-URL abrufen
+                    getDownloadURL(snapshot.ref).then((downloadURL) => {
+                        // Meme-Daten in Firestore speichern
+                        db.collection("memes").add({
+                            title: memeTitle,
+                            description: memeDescription,
+                            imageURL: downloadURL,
+                            createdAt: new Date(),
+                            votes: []  // Diese können später durch die Bewertungen der Nutzer ergänzt werden
+                        })
+                        .then(() => {
+                            alert("Meme erfolgreich hochgeladen!");
+                            // Formular zurücksetzen
+                            document.getElementById("uploadForm").reset();
+                        })
+                        .catch((error) => {
+                            console.error("Fehler beim Speichern:", error);
+                        });
+                    });
+                }).catch((error) => {
+                    console.error("Fehler beim Hochladen:", error);
+                });
+            }
         });
-      </script>
-      
-    <script>
+
         const memes = [
             "https://i.imgflip.com/4/30b1gx.jpg",
             "https://i.imgflip.com/4/26am.jpg",
@@ -137,20 +134,18 @@
             let rankingHTML = ranking.map(entry => `<p><img src="${entry.meme}" width="100"> - Avg. Rating: ${entry.average}</p>`).join(" ");
             document.getElementById("ranking").innerHTML = rankingHTML || "No ratings yet";
         }
-        
+
         window.onload = function() {
             loadMeme();
             updateRanking();
         };
-        
     </script>
     <!-- HTML: Meme hochladen -->
-<form id="uploadForm">
-    <input type="file" id="memeFile" accept="image/*" required>
-    <input type="text" id="memeTitle" placeholder="Titel" required>
-    <textarea id="memeDescription" placeholder="Beschreibung (optional)"></textarea>
-    <button type="submit">Meme hochladen</button>
-  </form>
-  
+    <form id="uploadForm">
+        <input type="file" id="memeFile" accept="image/*" required>
+        <input type="text" id="memeTitle" placeholder="Titel" required>
+        <textarea id="memeDescription" placeholder="Beschreibung (optional)"></textarea>
+        <button type="submit">Meme hochladen</button>
+    </form>
 </body>
 </html>
