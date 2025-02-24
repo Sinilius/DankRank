@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemeRank - Bewerte Memes</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .meme-container { width: 300px; margin: 20px auto; border: 1px solid #ddd; padding: 10px; }
+        .meme-container img { max-width: 100%; height: auto; }
+        .tier-buttons button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>MemeRank - Bewerte Memes</h1>
+    <div class="meme-container">
+        <img id="memeImage" src="https://i.imgflip.com/4/30b1gx.jpg" alt="Sample Meme">
+        <div class="tier-buttons">
+            <button onclick="vote('S')">S</button>
+            <button onclick="vote('A')">A</button>
+            <button onclick="vote('B')">B</button>
+            <button onclick="vote('C')">C</button>
+            <button onclick="vote('D')">D</button>
+            <button onclick="vote('F')">F</button>
+        </div>
+        <p id="voteResult">Noch keine Bewertung</p>
+    </div>
+
+    <script>
+        function vote(tier) {
+            document.getElementById("voteResult").innerText = "Deine Bewertung: " + tier;
+            alert("Danke für dein Voting! Bald gibt es ein richtiges Ranking.");
+        }
+    </script>
+</body>
+</html>
